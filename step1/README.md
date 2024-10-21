@@ -137,11 +137,15 @@ You can see that your browser is automatically trying to search for `/favicon.ic
 
 In this file we're going to create our handler struct, this will be the core of our app.
 
-For this we will use the dependency injection pattern, but that will come later.
+It will implement methods required for serving the HTTP server as well as handling the connection
+between frontend routes and the services in our application.
+
+Later on we will use the dependency injection pattern, to hydrate it with whatever is required for our app.
 
 - Create a `Handler` struct
   - Let's give it a `logger *slog.Logger` that we can sent from our main.go
-  - We're going to use the mux from "github.com/julienschmidt/httprouter" (`go get github.com/julienschmidt/httprouter`)
+  - To help us with routing, we're going to use an open-source library (`go get github.com/julienschmidt/httprouter`)
+  - We can still store this attribute as an interface, if we ever decide to use a different library: `mux http.Handler`
 - Now let's create a `New()` method that takes our logger and returns a `*Handler`
   - Create a route for our original homepage: `r.GET("/", h.homePage)`
   - Copy the homepage function from our main into this file (and make it a method: `func (h *Handler) homePage()`)
@@ -188,7 +192,7 @@ Now we go back to `cmd/app/main.go` and remove our `homePage` function.
 We then create our app: `app := handler.New(logger)` and pass it the logger.
 
 Replace `http.HandlerFunc(homePage)` with `app` in the `Handler:` attribute. 
-Your IDE might now complain that `app` which is of type `handler.Handler` 
+Your IDE might now complain that `app`, which is of type `handler.Handler`, 
 does not implement the `http.Handler` interface.
 
 Go back to `handler/handler.go` and add the following:
@@ -205,16 +209,21 @@ We are however passing on the real work to our `httprouter` mux, because it know
 
 ### static/layout.html
 
-Time to create the main template for our site.
+Time to create the main template for our site. We will use a _base layout_ and fill the content from other pages.
 
-We are using some Go HTML templating in here: `{{ template "title" . }}` this calls up on the stored template called 'title'.
-
+We are using Go HTML templating in here: `{{ template "title" . }}` this calls upon the stored template called 'title'.
 You can create this template either in Go, or in another file: `{{ define "title" }}Webshop{{ end }}`.
 
-Looking further we also see some use of `{{ if }}` and a lot of `{{ end }}` statements, to close everything.
+Our `layout.html` requires both a template for `title` as well as `content`.
+
+Looking further we also see some use of `{{ if }}` and a lot of `{{ end }}` statements to close everything.
 More about that in step 2.
 
-To learn more about Go HTML templating see https://gowebexamples.com/templates/ or https://pkg.go.dev/html/template.
+_To learn more about Go HTML templating see https://gowebexamples.com/templates/ or https://pkg.go.dev/html/template._
+
+You can copy the following, and adjust anything to make it fancy.
+We are using Bootstrap (directly loaded from a CDN) to give us some default developer-friendly design.
+This also adds responsive breakpoints, our webshop should look good on mobile devices!
 
 ```html
 <!DOCTYPE html>
@@ -276,15 +285,6 @@ To learn more about Go HTML templating see https://gowebexamples.com/templates/ 
 </nav>
 
 <main class="container mt-2">
-  {{ if .Flashes }}
-  {{ range $state, $msg := .Flashes }}
-  <div class="alert alert-{{ $state }} alert-dismissible fade show" role="alert">
-    {{ $msg }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-  </div>
-  {{ end }}
-  {{ end }}
-
   {{ template "content" . }}
 </main>
 
@@ -315,17 +315,19 @@ Since we're looking for `title` and `content` templates in our `layout.html`, we
             Lorem ipsum..
         </p>
         <div class="text-center">
-            <a href="/join" class="btn btn-primary">Join</a>
-            <a href="/login" class="btn btn-secondary">Log in</a>
+            <a href="/login" class="btn btn-primary">Log in</a>
+            <a href="/signup" class="btn btn-secondary">Sign up</a>
         </div>
     </div>
 </div>
 {{ end }}
 ```
 
+This will be the content for our endpoint on `"/"`.
+
 ### handler/handler.go
 
-Time to make some changes in our `homePage()` method.
+Time to make some changes in our `homePage()` method. We need to get all our HTML files and render them.
 
 We're going to create a `template.Template` by calling `template.ParseFiles()` on both our
 `layout.html` and `homepage.html`. Because we are okay with our application crashing if those files
