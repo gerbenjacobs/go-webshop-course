@@ -2,7 +2,7 @@
 
 ## Create our project and structure
 
-The name of your project is up to you, we will use the course name.
+The name of your project is up to you, for now we will use the course name.
 
 The name of your Go package is also completely up to you. However, it's often just the URL for where you'll
 store your project. Even if it's not public.
@@ -22,6 +22,16 @@ mkdir -p cmd/app handler services storage static
 
 _We will not use `services` and `storage` in step 1 yet._
 
+An explanation of these folders is as follows:
+
+- __cmd__: contains executables, most likely just an application (http, grpc), but also CLI tools
+- __handler__: contains all files related to handling incoming requests or triggers
+- __services__: contains your business logic
+- __storage__: contains all repository and storage related operations
+- __static__: contains our HTML, CSS, JS and other web related assets
+
+For more information you can read the [README of the svc framework](https://github.com/gerbenjacobs/svc/blob/main/README.md).
+
 ## Let's create some files
 
 ### cmd/app/main.go
@@ -37,13 +47,15 @@ func main() {
 }
 ```
 
+Yep, that's a fully functioning web server in Go.
+
 While you can make it very tiny like that, we know we will create a bigger project than "Hello World http server"
-so we do some extra fancy stuff already.
+so, let's do some extra fancy stuff already.
 
 - We set up graceful shutdown
   - Create a channel of `os.Signal` so we can listen to termination commands
   - Wait for a signal on that channel, and shut down our `http.Server` with a 5s timeout.
-- Create a logger with some nice stdout color output
+- Create a logger with some nice stdout color output (we'll use `github.com/lmittmann/tint`)
 - Create our own `http.Server` struct so can set timeouts (by default there are none)
 - Create a little `http.HandleFunc` function for our 'homepage'
 - Because `http.ListenAndServe()` is a blocking operation, we put it inside a goroutine
@@ -148,7 +160,7 @@ Later on we will use the dependency injection pattern, to hydrate it with whatev
   - We can still store this attribute as an interface, if we ever decide to use a different library: `mux http.Handler`
 - Now let's create a `New()` method that takes our logger and returns a `*Handler`
   - Create a route for our original homepage: `r.GET("/", h.homePage)`
-  - Copy the homepage function from our main into this file (and make it a method: `func (h *Handler) homePage()`)
+  - Copy the homepage function from our main into this file (and make it a receiver method: `func (h *Handler) homePage()`)
   - We have to update the function signature a little bit: `func (h *Handler) homePage(w http.ResponseWriter, r *http.Request, _ httprouter.Params)`
 
 ```go
@@ -184,6 +196,10 @@ func New(logger *slog.Logger) *Handler {
 	h.mux = r
 
 	return h
+}
+
+func (h *Handler) homePage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	// TODO: Get your function from main.go
 }
 ```
 
