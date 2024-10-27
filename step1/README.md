@@ -232,7 +232,7 @@ You can create this template either in Go, or in another file: `{{ define "title
 
 Our `layout.html` requires both a template for `title` as well as `content`.
 
-Looking further we also see some use of `{{ if }}` and a lot of `{{ end }}` statements to close everything.
+Looking further we also see some use of `{{ if }}` and  `{{ end }}` statements to close everything.
 More about that in step 2.
 
 _To learn more about Go HTML templating see https://gowebexamples.com/templates/ or https://pkg.go.dev/html/template._

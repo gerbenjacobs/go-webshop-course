@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"html/template"
 	"log/slog"
 	"net/http"
 
@@ -45,20 +44,4 @@ func New(logger *slog.Logger, deps Dependencies) *Handler {
 // ServeHTTP makes it so Handler implements the http.Handler interface
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.mux.ServeHTTP(w, r)
-}
-
-func (h *Handler) homePage(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	h.logger.DebugContext(r.Context(), "Request received",
-		"method", r.Method,
-		"url", r.RequestURI,
-	)
-	tmpl := template.Must(template.ParseFiles(
-		"static/layout.html",
-		"static/homepage.html",
-	))
-	if err := tmpl.Execute(w, nil); err != nil {
-		h.logger.Error("failed to execute layout", "error", err)
-		http.Error(w, "failed to create layout", http.StatusInternalServerError)
-		return
-	}
 }
