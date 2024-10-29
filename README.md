@@ -12,3 +12,5 @@ but since we'll have an API, a standalone frontend can be built as well.
 So what are you gonna sell in your shop?
 
 To start navigate to `/step1`.
+
+In each step we're going to copy our work from the previous step, and built upon its success.
