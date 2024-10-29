@@ -1,6 +1,11 @@
 package go_webshop_course
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
+
+var ErrProductNotFound = errors.New("product not found")
 
 type Product struct {
 	ID          int
@@ -12,4 +17,8 @@ type Product struct {
 
 func (p Product) String() string {
 	return fmt.Sprintf("[%d] %s - %s (€%.2f)", p.ID, p.Name, p.Description, p.Price)
+}
+
+func (p Product) FormattedPrice() string {
+	return fmt.Sprintf("€%.2f", p.Price)
 }

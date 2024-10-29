@@ -160,7 +160,7 @@ Later on we will use the dependency injection pattern, to hydrate it with whatev
   - We can still store this attribute as an interface, if we ever decide to use a different library: `mux http.Handler`
 - Now let's create a `New()` method that takes our logger and returns a `*Handler`
   - Create a route for our original homepage: `r.GET("/", h.homePage)`
-  - Copy the homepage function from our main into this file (and make it a receiver method: `func (h *Handler) homePage()`)
+  - __Task__: Copy the homepage function from our main into this file (and make it a receiver method: `func (h *Handler) homePage()`)
   - We have to update the function signature a little bit: `func (h *Handler) homePage(w http.ResponseWriter, r *http.Request, _ httprouter.Params)`
 
 ```go

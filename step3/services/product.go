@@ -18,3 +18,7 @@ func NewProductService(repo storage.ProductRepository) *ProductSvc {
 func (p *ProductSvc) ListProducts(ctx context.Context) ([]app.Product, error) {
 	return p.repo.GetAllProducts(ctx)
 }
+
+func (p *ProductSvc) ShowProduct(ctx context.Context, productID int) (app.Product, error) {
+	return p.repo.GetProduct(ctx, productID)
+}

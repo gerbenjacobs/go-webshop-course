@@ -2,13 +2,10 @@ package storage
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	app "github.com/gerbenjacobs/go-webshop-course"
 )
-
-var ErrProductNotFound = errors.New("product not found")
 
 type ProductRepo struct {
 	products map[int]app.Product
@@ -46,7 +43,7 @@ func (p *ProductRepo) GetAllProducts(_ context.Context) ([]app.Product, error) {
 func (p *ProductRepo) GetProduct(ctx context.Context, productID int) (app.Product, error) {
 	v, ok := p.products[productID]
 	if !ok {
-		return app.Product{}, fmt.Errorf("%w: for ID: %d", ErrProductNotFound, productID)
+		return app.Product{}, fmt.Errorf("%w: for ID: %d", app.ErrProductNotFound, productID)
 	}
 	return v, nil
 }

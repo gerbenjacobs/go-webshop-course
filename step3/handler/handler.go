@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"html/template"
 	"log/slog"
 	"net/http"
 
@@ -36,6 +37,8 @@ func New(logger *slog.Logger, deps Dependencies) *Handler {
 	r.GET("/", h.products)
 	r.GET("/product/:id", h.productByID)
 
+	r.NotFound = http.HandlerFunc(h.notFound)
+
 	// set mux
 	h.mux = r
 
@@ -45,4 +48,21 @@ func New(logger *slog.Logger, deps Dependencies) *Handler {
 // ServeHTTP makes it so Handler implements the http.Handler interface
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.mux.ServeHTTP(w, r)
+}
+
+func (h *Handler) notFound(w http.ResponseWriter, r *http.Request) {
+	h.logger.WarnContext(r.Context(), "Page not found",
+		"method", r.Method,
+		"url", r.RequestURI,
+	)
+	tmpl := template.Must(template.ParseFiles(
+		"static/layout.html",
+		"static/404.html",
+	))
+	w.WriteHeader(http.StatusNotFound)
+	if err := tmpl.Execute(w, nil); err != nil {
+		h.logger.Error("failed to execute layout", "error", err)
+		http.Error(w, "failed to create layout", http.StatusInternalServerError)
+		return
+	}
 }

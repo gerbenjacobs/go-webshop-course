@@ -8,4 +8,5 @@ import (
 
 type ProductService interface {
 	ListProducts(context.Context) ([]app.Product, error)
+	ShowProduct(context.Context, int) (app.Product, error)
 }

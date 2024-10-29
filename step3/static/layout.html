@@ -57,6 +57,15 @@
 </nav>
 
 <main class="container mt-2">
+    {{ if .Flashes }}
+    {{ range $state, $msg := .Flashes }}
+    <div class="alert alert-{{ $state }} alert-dismissible fade show" role="alert">
+        {{ $msg }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {{ end }}
+    {{ end }}
+    
     {{ template "content" . }}
 </main>
 
