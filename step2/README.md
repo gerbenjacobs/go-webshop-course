@@ -227,7 +227,7 @@ use that and enter `p *ProductRepo ProductRepository` (format is `<receiver> <in
 
 In IntelliJ you can right-click the struct and pick `Generate ..`, then pick "Interface" and search for `ProductRepository`.
 
-Now that you have a method for `GetAllProducts`, you'll have to implement it. It expects to return a slice, but we have a map.
+__Task__: Now that you have a method for `GetAllProducts`, you'll have to implement it. It expects to return a slice, but we have a map.
 This means we have to create a local variable and range over the map to populate it. Then we can return the slice and `nil` for the error value.
 
 If you're stuck, you can have a peek at `storage/product_repository_memory.go`.
@@ -283,7 +283,7 @@ type Dependencies struct {
 It wants interfaces, but we'll give it actual implementations. We'll do this from our `main.go`, so that's why 
 we capitalize the attributes i.e. 'Product' so they are public and accessible from main.
 
-Add this `Dependencies` struct to the `Handler` struct and update `handler.New()` to now, 
+__Task__: Add this `Dependencies` struct to the `Handler` struct and update `handler.New()` to now, 
 after the logger, also accept these Dependencies.
 
 ### Time to update main.go
@@ -367,7 +367,7 @@ move this to a better place.
 
 The core functionality however is us adding `h.Product.ListProducts()`. 
 Because we added our `Dependencies` anonymously, we can directly call our ProductService,
-which we named `Product`. If you're not happy with these names, you change them.
+which we named `Product`. If you're not happy with these names, you can change them.
 
 ### static/homepage.html
 
@@ -400,7 +400,7 @@ func NewProductRepo() *ProductRepo {
 }
 ```
 
-That's the signature, now you complete the body.
+__Task__: That's the signature, now you complete the body.
 
 At this point you also better have thought about what your specific shop is selling.
 Is it books? Flowers? Gadgets? CDs or vinyl? Dark web items? Or maybe it's a digital coffee shop?
