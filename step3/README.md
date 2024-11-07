@@ -152,10 +152,11 @@ var ErrProductNotFound = errors.New("product not found")
 ```
 
 Back in your repository code where you deal with the error, return this error instead. As per the svc guidelines, 
-certain errors are also considered domain models. Something generic like 'product not found' is one such an example.
+certain errors are also considered domain models. Something application specific such as 'product not found' 
+is a good example, all layers can understand this.
 
 You can also use [error wrapping](https://rollbar.com/blog/golang-wrap-and-unwrap-error/) to add more information
-but keep the original error value intact.
+while keeping the original error intact.
 
 ```go
 return app.Product{}, fmt.Errorf("%w: we don't know about id: %d", app.ErrProductNotFound, id)
@@ -180,15 +181,18 @@ type ProductService interface {
 }
 ```
 
-It's very difficult to name things. We could have gone for `FetchProduct()` or even `GetProduct()`, just like our _storage_ interface.
+It's very difficult to name things. We could have gone for `FetchProduct()` or even `GetProduct()`, just like 
+our _storage_ interface.
 
-In the case of services, we should be as specific as possible. We are creating this method specifically for 'showing a detailed product'.
+In the case of services, we should be as specific as possible. We are creating this method specifically for 
+'showing a detailed product'.
 
-For example, if we ever have to deal with authorization and a user is not allowed to see a specific product, we could implement this
-in our `ShowProduct()` method. If you want a method to just always get a product, without any checks, maybe then we could introduce
-a `GetProduct()` method.
+For example, if we ever have to deal with authorization and a user is not allowed to see a specific product, 
+we could implement this in our `ShowProduct()` method. If you want a method to just always get a product, 
+without any checks, maybe then we could introduce a `GetProduct()` method.
 
-Both methods could still use `storage.GetProduct()` under the hood. 
+Both methods could still use `storage.GetProduct()` under the hood. And that's the beauty of having 
+separate interfaces for services and storage.
 
 ### services/product.go
 
@@ -287,7 +291,7 @@ Oct 29 20:59:45.692 ERR couldn't convert product ID to int error="strconv.Atoi: 
 Which is a 200, 200, 404, 400 respectively. 
 
 However, these `http.Error()` calls are quite rough, it literally shows you a page with nothing but an error message and
-the proper HTTP status code. This is fine for a JSON API, but not for our site.
+the proper HTTP status code. This is fine for a JSON API, but not for our HTML site.
 
 We'll have a look at 'Flashes' later, to give us proper user-friendly error handling.
 
@@ -295,15 +299,18 @@ We'll have a look at 'Flashes' later, to give us proper user-friendly error hand
 
 We however have more important business to do. We need to make our `product.html` page dynamic.
 
-In `homepage.html` we saw us use `{{ . }}`, this dot means the current scope. We got that because we were using a `{{ range }}`.
+In `homepage.html` we saw us use `{{ . }}`, this dot means the current scope. 
+We got that because we were using a `{{ range }}`.
 
-Our scope in `product.html` will basically be the entire `pageData` struct we created. So as a hint, to get the product title: `{{ .Product.Name }}`
+Our scope in `product.html` will basically be the entire `pageData` struct we created. 
+So as a hint, to get the product title: `{{ .Product.Name }}`
 
 __Task__: Replace all static data in `product.html` with Go templating. (Maybe leave the image alone)
 
 Restart your application and check multiple products. Is the data changing?
 
-_Make sure you don't forget to update the text in our `{{ define "title" }}` template, and also the `<img>` has an `alt` field._
+_Make sure you don't forget to update the text in our `{{ define "title" }}` template, 
+and also the `<img>` has an `alt` field._
 
 _FYI: If you **only** make changes in your HTML, you can reload your page without reloading the Go app_
 
@@ -321,7 +328,8 @@ and a nicely formatted price for the actual text.
 <h6 class="card-subtitle mb-2 text-body-secondary" data-price="12.99">€12.99</h6>
 ```
 
-We could solve this by adding functions to our HTML template, but I've had better luck with creating helper functions on our model.
+We could solve this by adding functions to our HTML template, but I've had better luck with creating helper 
+functions on our model.
 
 Let's go to `product.go` and add the following:
 
@@ -331,8 +339,8 @@ func (p Product) FormattedPrice() string {
 }
 ```
 
-In our `product.html` go back to `{{ .Product.Price }}` and replace it with `{{ .Product.FormattedPrice }}`. Make sure to also
-delete the extra Euro symbol.
+In our `product.html` go back to `{{ .Product.Price }}` and replace it with `{{ .Product.FormattedPrice }}`. 
+Make sure to also delete the extra Euro symbol.
 
 Refresh your application and make sure it works. Go's HTML templating allows you to call functions on models.
 
@@ -393,8 +401,9 @@ Within our `New()` method we can then add this line to our router:
 r.NotFound = http.HandlerFunc(h.notFound)
 ```
 
-This `r.NotFound` is a special func that we can overwrite. It requires a `http.Handler` (so not the special `httprouter` one),
-however we can easily encapsulate this with `http.HandlerFunc()` which creates a `http.Handler` out of any func we give it.
+This `r.NotFound` is a special func that we can overwrite. It requires a `http.Handler` 
+(so not the special `httprouter` one), however we can easily encapsulate this with `http.HandlerFunc()`
+which creates a `http.Handler` out of any func we give it.
 
 ### static/404.html
 
