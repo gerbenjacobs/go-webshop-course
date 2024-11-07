@@ -39,6 +39,8 @@ For more information you can read the [README of the svc framework](https://gith
 Let's create the main of our application.
 
 ```go
+package main 
+
 func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("Hello World!"))
@@ -48,6 +50,10 @@ func main() {
 ```
 
 Yep, that's a fully functioning web server in Go.
+
+```shell
+go run ./cmd/app/main.go
+```
 
 While you can make it very tiny like that, we know we will create a bigger project than "Hello World http server"
 so, let's do some extra fancy stuff already.
