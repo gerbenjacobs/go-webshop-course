@@ -198,7 +198,7 @@ separate interfaces for services and storage.
 
 Now we need to implement `ShowProduct()`. 
 
-Since our _service_ interface kinda matches our _storage_ interface, we could try:
+Since our _service_ interface technically matches our _storage_ interface, we could try:
 
 ```go
 func (p *ProductSvc) ShowProduct(ctx context.Context, productID int) (app.Product, error) {
