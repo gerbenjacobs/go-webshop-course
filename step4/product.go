@@ -8,11 +8,11 @@ import (
 var ErrProductNotFound = errors.New("product not found")
 
 type Product struct {
-	ID          int
-	Name        string
-	Description string
-	Image       string
-	Price       float64
+	ID          int     `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"desc"`
+	Image       string  `json:"img"`
+	Price       float64 `json:"price"`
 }
 
 func (p Product) String() string {

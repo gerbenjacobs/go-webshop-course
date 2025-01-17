@@ -33,8 +33,10 @@ func main() {
 	// create our dependencies
 	productRepo := storage.NewProductRepo()
 	productSvc := services.NewProductService(productRepo)
+	basketSvc := services.NewBasketService(storage.NewBasketRepo())
 	deps := handler.Dependencies{
 		Product: productSvc,
+		Basket:  basketSvc,
 	}
 
 	// create a handler and server

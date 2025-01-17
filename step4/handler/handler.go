@@ -20,6 +20,7 @@ type Handler struct {
 
 type Dependencies struct {
 	Product services.ProductService
+	Basket  services.BasketService
 }
 
 func New(logger *slog.Logger, deps Dependencies) *Handler {
@@ -36,6 +37,14 @@ func New(logger *slog.Logger, deps Dependencies) *Handler {
 	// create routes
 	r.GET("/", h.products)
 	r.GET("/product/:id", h.productByID)
+
+	// API routes
+	r.GET("/api/products", h.apiProducts)
+	r.GET("/api/products/:id", h.apiProductByID)
+
+	r.GET("/api/basket", h.apiBasket)
+	r.POST("/api/basket/add", h.apiAddToBasket)
+	r.POST("/api/basket/remove", h.apiRemoveFromBasket)
 
 	r.NotFound = http.HandlerFunc(h.notFound)
 
