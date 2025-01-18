@@ -40,7 +40,7 @@ r.POST("/api/basket/remove", h.apiRemoveFromBasket)
 Let's implement our first API route.
 
 To have a Go webserver respond with JSON, we really only need to set the Content-Type 
-(although most likely most clients will auto-detect this) and return the JSON representation of our products.
+(although likely most clients will auto-detect this) and return the JSON representation of our products.
 
 ```go
 func (h *Handler) apiProducts(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -65,15 +65,17 @@ Then we set the correct `Content-Type` header on the ResponseWriter, initiate a 
 is actually our `http.ResponseWriter` (in other words: we directly write our converted JSON to the browser)
 and call the `Encode()` method with our products.
 
-__Task__: Comment out the other API routes and start your server. Open http://localhost:8000/api/products in your browser
+__Task__: Comment out every other API route but this one and start your server. Open http://localhost:8000/api/products in your browser
 
 If we then use `curl` to check our new endpoint, we see this.
 
 ```shell
-$ curl http://localhost:8000/api/products
+curl http://localhost:8000/api/products
+```
+Response:
+```json
 [{"ID":1,"Name":"Gopher plushie","Description":"A small purple Gophier plushie, perfect for kids and adults alike.","Image":"","Price":12.99},{"ID":2,"Name":"PHP Elephant plushie","Description":"An elephant with the PHP logo, available in blue and pink","Image":"","Price":20}]
 ```
-
 Depending on what browser you use, you might see a nice readable JSON array, 
 but CURL doesn't do this and the actual data we're sending also doesn't 'prettify' our JSON.
 
@@ -144,7 +146,7 @@ the `productByID()` method.
 
 ## Baskets
 
-We seem to have a new requirement with regards to having 'basket functionality'.
+We seem to have a new requirement in regard to having 'basket functionality'.
 
 We have none of this, so we need to set up: domain models, storages, services.
 
@@ -217,8 +219,8 @@ return an error: `app.ErrBasketNotFound`.
 
 Create this domain model error in `/basket.go`, if you're unsure you can lookup how you did it in `/product.go`.
 
-_Note 2_: For our `GetBasket()` method we actually want to create an entry in the map and not return an error. Consider it a `PUT`.
-Don't forget about manually setting the `UserID`.
+_Note 2_: For our `GetBasket()` method we actually want to create an entry in the map if no Basket is found 
+and not return an error. Consider it a `PUT`. Don't forget about manually setting the `UserID`.
 
 _Note 3_: Also it's going to be a bit of work to properly deal with `quantity` because our `Basket.Items` is a slice
 and so we're going to have the 'challenge' of having to loop over the items to consolidate. The same thing 
@@ -231,7 +233,7 @@ _Note 4_: For dealing with `Basket.Items`, you can have a look at https://go.dev
 
 ### services/basket.go
 
-Time to implement our `BasketSvc` service. We can refresh our mind by looking at `services/product.go`.\
+Time to implement our `BasketSvc` service. We can refresh our mind by looking at `services/product.go`.
 
 ```go
 type BasketSvc struct {
@@ -258,7 +260,7 @@ So we just load `h.Basket.GetBasket..`.. wait a minute; we have not added our De
 
 Alright, so first we need to go to `handler/handler.go` and add `Basket services.BasketService` to our `Dependencies` struct.
 
-This means we then need to go to `cmd/app/main.go` and supply it here as well. Our `Handler` should now know about `BasketService`
+We then need to go to `cmd/app/main.go` and supply it here as well. Our `Handler` should now know about `BasketService`
 and we can call its methods in our API handlers.
 
 
@@ -288,7 +290,7 @@ So we don't have a user system yet and we kind of painted ourselves in a corner 
 We have no way of getting the User ID. Normally this would be fine, because that information comes out
 of the context, either directly or via an access token.
 
-For now we're just going to say that everyone shares a basket and you have to be really quick to press "Order"!
+For now, we're just going to say that everyone shares a basket, and you have to be really quick to press "Order"!
 
 _Don't forget to uncomment your Get Basket route in `handler/handler.go`.._
 
@@ -300,9 +302,9 @@ Restart your server and browse or `curl` to http://localhost:8000/api/basket. Ar
 
 #### Adding a product
 
-Our "add product" route is a POST, so we need to start dealing with form data. Although we could also JSON input.
+Our "add product" route is a POST, so we need to start dealing with form data. 
 
-This is something that you need to design into your API.
+Although we could also use JSON input, this is something that you need to design into your API.
 
 ```go
 r.ParseForm()
@@ -346,8 +348,29 @@ Content-Length: 52
 {"UserID":1,"Items":[{"ProductID":1,"Quantity":1}]}
 ```
 
+
+_If your editor allows it, here are quick commands to run the above `curl` commands._
+
+```shell
+curl -i -d "product_id=1" http://localhost:8000/api/basket/add
+```
+
+```shell
+curl -i http://localhost:8000/api/basket
+```
+
 __Note__: Everytime you restart your server, you'll have to create a basket, since our in-memory repository is temporary.
 
 ### (Optional) Implement the 'delete item from basket' endpoint
 
 If you still have some time, implement the `r.POST("/api/basket/remove", h.apiRemoveFromBasket)` route.
+
+### (Optional advanced) Implement the ability to set quantity
+
+So we hardcoded `1` as the quantity, but we could also allow the user to specify this.
+
+- Parse the `quantity` from the form data
+- Update the `AddToBasket` and `RemoveFromBasket` method in your `BasketRepo` to accept this quantity
+- Update the code in `AddToBasket` to increment the quantity if the product is already in the basket
+- Update the code in `RemoveFromBasket` to decrement the quantity if the product is already in the basket
+- Remove a product from the basket fully if the quantity reaches 0
